@@ -2,7 +2,7 @@
 
 ## 概要
 
-リレーされたすべてのメールをローカルに受信し、WebUIとして表示
+リレーされたすべてのメールをローカルに受信し、WebUIとして表示します
 
 * プログラムからメールを送信するときに実際にメールを受信しなくても確認ができます。
 * HTMLメールや添付ファイルがあっても正しく受信可能です。
@@ -41,13 +41,14 @@ CentOS6系での導入例。
 
 ### DB設定
 
-vi /etc/my.cnf
-
+    vi /etc/my.cnf
+    %>>>
     character-set-server = utf8mb4
     collation-server = utf8mb4_general_ci
+    <<<%
 
-service mysqld reload
-mysql < setup/create.sql
+    service mysqld reload
+    mysql < setup/create.sql
 
 ### apache設定
 
@@ -55,9 +56,11 @@ mysql < setup/create.sql
 
 ### postfix設定
 
-vi /etc/postfix/main.cf
-以下項目を適時書き換え
+適時書き換え
 
+    vi /etc/postfix/main.cf
+
+    %>>>
     ## 外からメールの受信を許可
     inet_interfaces = all
 
@@ -73,16 +76,19 @@ vi /etc/postfix/main.cf
 
     ## トランスポートマップを指定
     transport_maps = hash:/etc/postfix/transport
+    <<<%
 
-vi /etc/postfix/transport
-下記のみ有効でいいはず
-
+    vi /etc/postfix/transport
+    %>>>
     *  local:
+    <<<%
 
-vi /etc/postfix/aliases
 メール受信時のプログラム動作を設定する
 
-	mocksmtp: "|/usr/bin/php /opt/mocksmtp/script/run.php"
+    vi /etc/postfix/aliases
+	%>>>
+    mocksmtp: "|/usr/bin/php /opt/mocksmtp/script/run.php"
+    <<<%
 
 設定内容を反映する
 
@@ -98,14 +104,17 @@ mtaがpostfixになっているか確認（なっていなければpostfixに変
 
 	alternatives --config mta
 
-vi /etc/postfix/main.cf
-
+    vi /etc/postfix/main.cf
+    %>>>
 	transport_maps = hash:/etc/postfix/transport
+    <<<%
 
 全部のドメインをmocksmtpサーバにリレーする
-vi /etc/postfix/transport
 
-	*   smtp:[MockSMTP配置サーバのIPアドレス]
+    vi /etc/postfix/transport
+    %>>>
+    *   smtp:[MockSMTP配置サーバのIPアドレス]
+    <<<%
 
 transport.dbの作成
 
