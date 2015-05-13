@@ -1,0 +1,27 @@
+{
+    "repositories": [
+        {
+            "type": "package",
+            "package": {
+                "name": "archive/zf",
+                "version": "1.12.3-p1",
+                "dist": {
+                    "url": "https://packages.zendframework.com/releases/ZendFramework-1.12.3/ZendFramework-1.12.3-minimal.zip",
+                    "type": "zip"
+                },
+                "include-path": [
+                    "library"
+                ],
+                "autoload": {
+                    "psr-0": {
+                        "Zend_": "library"
+                    }
+                }
+            }
+        }
+    ],
+    "require": {
+        "archive/zf": "1.*",
+        "exorus/php-mime-mail-parser": "*"
+    }
+}

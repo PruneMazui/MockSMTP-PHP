@@ -1,0 +1,154 @@
+<div>
+    <div class="text-right">
+        <a href="./detail/origin?mail_id=<?php echo $this->mail['mail_id'];?>" target="_blank">
+            <button type="button" class="btn btn-default"><span class="glyphicon glyphicon-file"></span>初回受信の電文をバイナリでダウンロード</button>
+        </a>
+    </div>
+</div>
+
+<?php if(!$this->mail['error_flg']):?>
+    <div>
+        <table class="table table-bordered" style="margin-top:10px">
+            <?php if($this->from):?>
+            <tr>
+                <th style="width:10%;">FROM</th>
+                <td colspan="3">
+                    <?php foreach($this->from as $from):?>
+                        <div><?php echo h($from['address']);?></div>
+                    <?php endforeach;?>
+                </td>
+            </tr>
+            <?php endif;?>
+
+            <?php if($this->to):?>
+            <tr>
+                <th>TO</th>
+                <td colspan="3">
+                    <?php foreach($this->to as $to):?>
+                        <div><?php echo h($to['address']);?></div>
+                    <?php endforeach;?>
+                </td>
+            </tr>
+            <?php endif;?>
+
+            <?php if($this->cc || $this->bcc):?>
+            <tr>
+                <?php if($this->cc):?>
+                    <th>CC</th>
+                    <td <?php if(!$this->bcc):?>colspan="3"<?php endif;?>>
+                        <?php foreach($this->cc as $cc):?>
+                            <div><?php echo h($cc['address']);?></div>
+                        <?php endforeach;?>
+                    </td>
+                <?php endif;?>
+
+                <?php if($this->bcc):?>
+                    <th>BCC</th>
+                    <td <?php if(!$this->cc):?>colspan="3"<?php endif;?>>
+                        <?php foreach($this->bcc as $bcc):?>
+                            <div><?php echo h($bcc['address']);?></div>
+                        <?php endforeach;?>
+                    </td>
+                <?php endif;?>
+            </tr>
+            <?php endif;?>
+
+            <tr>
+                <th style="width:10%;">初回受信</th>
+                <td style="width:39%;">
+                    <div><?php echo h(App::formatDatetime($this->mail['receive_date']));?></div>
+                </td>
+                <th style="width:10%;">受信回数</th>
+                <td style="width:39%;">
+                    <div><?php echo h($this->mail['receive_count']);?></div>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <div role="tabpanel">
+        <!-- Nav tabs -->
+        <ul class="nav nav-tabs" role="tablist">
+            <li role="presentation" class="active"><a href="#body" aria-controls="body" role="tab" data-toggle="tab">本文</a></li>
+            <li role="presentation"><a href="#headers" aria-controls="headers" role="tab" data-toggle="tab">ヘッダ</a></li>
+
+            <?php if(count($this->file)):?>
+                <li role="presentation"><a href="#files" aria-controls="files" role="tab" data-toggle="tab">ファイル</a></li>
+            <?php endif;?>
+        </ul>
+
+        <!-- Tab panes -->
+        <div class="tab-content">
+            <div role="tabpanel" class="tab-pane active" id="body">
+                <?php if($this->mail['content_type'] == 'text/html'): ?>
+                    <div class="mail_area">
+                        <iframe src="./detail/html?mail_id=<?php echo $this->mail['mail_id'];?>" frameborder="0"  style="width:100%; height:400px;"></iframe>
+                    </div>
+                    <strong>※Javascriptを除去して表示しています。</strong>
+                <?php else:?>
+                    <div class="text-pre mail_area"><?php echo h($this->mail['body']);?></div>
+                <?php endif;?>
+            </div>
+
+            <div role="tabpanel" class="tab-pane" id="headers">
+                <div role="tabpanel">
+                    <ul class="nav nav-tabs" role="tablist">
+                        <?php foreach($this->headers as $seq => $headers):?>
+                            <li role="presentation" <?php if($seq == 1):?>class="active"<?php endif;?>><a href="#header<?php echo $seq?>" aria-controls="header<?php echo $seq?>" role="tab" data-toggle="tab"><?php echo $seq?>回目</a></li>
+                        <?php endforeach;?>
+                    </ul>
+                    <div class="tab-content">
+                        <?php foreach($this->headers as $seq => $headers):?>
+                        <div role="tabpanel" class="tab-pane<?php if($seq == 1):?> active<?php endif;?>" id="header<?php echo $seq?>">
+                            <table class="table table-bordered">
+                                <?php foreach($headers as $header):?>
+                                <tr>
+                                    <th style="width:20%;"><?php echo h($header['name']);?></th>
+                                    <td><?php echo h($header['content']);?></td>
+                                </tr>
+                                <?php endforeach;?>
+                            </table>
+                        </div>
+                        <?php endforeach;?>
+                    </div>
+                </div>
+            </div>
+
+
+            <?php if(count($this->file)):?>
+            <div role="tabpanel" class="tab-pane" id="files">
+                <table class="table table-bordered" style="margin-top:10px;">
+                    <tr>
+                        <th style="width:30%;">ファイル名</th>
+                        <th style="width:15%;">サイズ (byte)</th>
+                        <th>Content-Type</th>
+                        <th style="width:315px;">&nbsp;</th>
+                    </tr>
+                    <?php foreach($this->file as $file):?>
+                    <tr>
+                        <td><?php echo h($file['filename']);?></td>
+                        <td class="text-right"><?php echo h(number_format($file['filesize']));?></td>
+                        <td class="text-center"><?php echo h($file['content_type']);?></td>
+                        <td>
+                            <?php if(App::isImageType($file['content_type'])):?>
+                                <a href="./detail/file?mail_id=<?php echo $file['mail_id'];?>&seq=<?php echo $file['seq'];?>" target="_blank">
+                                    <img src="./detail/file?mail_id=<?php echo $file['mail_id'];?>&seq=<?php echo $file['seq'];?>" <?php if($file['width'] > 300):?>width="300px;"<?php endif;?>>
+                                </a>
+                            <?php else:?>
+                                <a href="./detail/file?mail_id=<?php echo $file['mail_id'];?>&seq=<?php echo $file['seq'];?>" target="_blank">
+                                    <button type="button" class="btn btn-default">
+                                        <span class="glyphicon glyphicon-download-alt">ダウンロード</span>
+                                    </button>
+                                </a>
+                            <?php endif;?>
+                        </td>
+                    </tr>
+                    <?php endforeach;?>
+                </table>
+            </div>
+            <?php endif;?>
+        </div>
+    </div>
+<?php else:?>
+    <div style="margin-top: 10px" class="text-pre mail_area"><?php echo h($this->mail['error_trace']);?></div>
+<?php endif;?>
