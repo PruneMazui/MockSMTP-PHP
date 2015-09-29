@@ -242,13 +242,18 @@ class Dao
         {
             $db->rollBack();
 
-            $this->registerException($e);
+            $this->registerException($e, $parser);
         }
     }
 
-    public function registerException(Exception $e)
+    public function registerException(Exception $e, $parser = null)
     {
         $db = $this->_db;
+        
+        $content = '';
+        if($parser instanceof MailParser) {
+            $content = $parser->getOrigin();
+        }
 
         $db->beginTransaction();
 
@@ -267,7 +272,7 @@ class Dao
 
             $db->insert('t_mail_orig', [
                 'mail_id' => $mail_id,
-                'content' => $parser->getOrigin(),
+                'content' => $content,
             ]);
 
             $db->commit();
