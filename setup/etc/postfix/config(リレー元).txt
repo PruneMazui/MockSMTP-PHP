@@ -1,0 +1,26 @@
+# mtaがpostfixになっているか確認
+
+alternatives --config mta
+
+# main.cfの設定
+vi /etc/postfix/main.cf
+
+%>>>
+transport_maps = hash:/etc/postfix/transport
+<<<%
+
+
+# 全部のドメインをmocksmtpサーバにリレーする
+vi /etc/postfix/transport
+
+%>>>
+*          smtp:192.168.2.226
+<<<%
+
+# transport.dbの作成
+
+postmap /etc/postfix/transport
+service postfix restart
+
+ローカルユーザーに対しても配送されそうな気がするから要確認
+mailコマンドでメールを送ってみる

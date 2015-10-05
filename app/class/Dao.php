@@ -249,7 +249,7 @@ class Dao
     public function registerException(Exception $e, $parser = null)
     {
         $db = $this->_db;
-        
+
         $content = '';
         if($parser instanceof MailParser) {
             $content = $parser->getOrigin();
@@ -261,6 +261,7 @@ class Dao
         {
             // エラーとしてメールを登録
             $db->insert('t_mail', [
+                'message_id'   => hash('SHA256', mt_rand() . uniqid() . microtime(true)),
                 'body'         => '',
                 'error_flg'    => 1,
                 'error_msg'    => $e->getMessage(),

@@ -1,0 +1,60 @@
+#########################################################################
+# /etc/postfix/main.cf
+
+## 外からメールの受信を許可
+inet_interfaces = all
+
+## エイリアスの変更
+alias_maps           = hash:/etc/postfix/aliases
+alias_database       = hash:/etc/postfix/aliases
+
+## 知らないローカルユーザーを拒否しない
+local_recipient_maps =
+
+## ローカル配送で不明なユーザへのメールは mocksmtp へ送る
+luser_relay = mocksmtp
+
+## トランスポートマップを指定
+transport_maps = hash:/etc/postfix/transport
+
+
+#########################################################################
+# /etc/postfix/transport
+
+## 一部のドメインを smtp、その他全てをローカル配送にする
+
+mail.example.jp     :
+example.jp      smtp:
+.example.jp     smtp:
+*               local:
+
+# ※自ホストが「mail.example.jp」のように「一部のドメイン」に含まれている場合、
+# 先頭のエントリを設けてsmtp がループしないようにしなければならない
+
+# 例えば headjapan.com headjapan.net ドメインはそのまま送るんだったら以下のようにする
+#（別途リレーの設定をしないとHJメールサーバに弾かれるが）
+headjapan.com  smtp:
+headjapan.net  smtp:
+
+# 全部ローカルで吸収するには以下だけでいいはず
+*             local:
+
+
+#########################################################################
+# /etc/postfix/aliases
+
+## mocksmtpユーザーで受診したらプログラムにパイプする
+mocksmtp: "|/usr/bin/php /opt/mocksmtp/script/run.php"
+
+
+#########################################################################
+# 設定反映
+
+newaliases
+postmap /etc/postfix/transport
+service postfix restart
+
+
+#########################################################################
+# メールを送ってみる
+mail test@test.com
